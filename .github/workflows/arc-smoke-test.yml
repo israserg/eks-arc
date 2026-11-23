@@ -1,0 +1,49 @@
+name: ARC runner smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/arc-smoke-test.yml"
+
+jobs:
+  inspect:
+    # Matches the runner scale set name created by Terraform (helm release "arc-runners").
+    runs-on: arc-runners
+    steps:
+      - name: Operating system
+        run: |
+          echo "== uname =="
+          uname -a
+          echo "== /etc/os-release =="
+          cat /etc/os-release
+          echo "== architecture =="
+          uname -m
+          echo "== CPU / memory =="
+          nproc
+          grep MemTotal /proc/meminfo
+
+      - name: Installed tools
+        run: |
+          for tool in bash git curl wget jq python3 make kubectl helm terraform aws docker node; do
+            if command -v "$tool" >/dev/null 2>&1; then
+              version=$("$tool" --version 2>&1 | head -n 1)
+              echo "[installed] $tool -> $version"
+            else
+              echo "[missing]   $tool"
+            fi
+          done
+
+      - name: Disk usage
+        run: |
+          echo "== df -h =="
+          df -h
+          echo "== working directory =="
+          pwd
+          du -sh . 2>/dev/null || true
+
+      - name: Environment variables
+        run: |
+          # Secrets are filtered out. Only names that don't look sensitive are printed.
+          env | sort | grep -viE 'token|secret|password|key|credential' || true

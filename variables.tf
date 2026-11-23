@@ -17,9 +17,9 @@ variable "kubernetes_version" {
 }
 
 variable "node_instance_type" {
-  description = "EC2 instance type for worker nodes. t3.medium gives 2 vCPU and 4 GiB, enough for ARC."
+  description = "EC2 instance type for worker nodes. Must be Free Tier eligible on the Free plan: m7i-flex.large has 2 vCPU and 8 GiB, enough for ARC with Docker-in-Docker."
   type        = string
-  default     = "t3.medium"
+  default     = "m7i-flex.large"
 }
 
 variable "node_count" {
@@ -31,7 +31,7 @@ variable "node_count" {
 variable "github_config_url" {
   description = "GitHub repo or org that runners register to, e.g. https://github.com/<owner>/<repo>. Leave empty to skip the ARC runner step."
   type        = string
-  default     = ""
+  default     = "https://github.com/israserg/eks-arc"
 }
 
 variable "github_token" {

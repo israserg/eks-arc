@@ -20,6 +20,8 @@ module "eks" {
     coredns    = {}
     kube-proxy = {}
     vpc-cni    = {}
+    # Lets pods receive AWS credentials for an IAM role (used by runners to push to ECR).
+    eks-pod-identity-agent = {}
   }
 
   vpc_id     = module.vpc.vpc_id

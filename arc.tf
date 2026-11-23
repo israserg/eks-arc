@@ -59,7 +59,22 @@ resource "helm_release" "arc_runners" {
     githubConfigSecret = kubernetes_secret.github_credentials[0].metadata[0].name
     minRunners         = 1
     maxRunners         = 1
+
+    # Docker-in-Docker: a Docker daemon runs as a sidecar so jobs can run docker build/run/push.
+    containerMode = {
+      type = "dind"
+    }
+
+    # Runner pods use this service account, which is linked to the ECR role via Pod Identity.
+    template = {
+      spec = {
+        serviceAccountName = kubernetes_service_account.arc_runner[0].metadata[0].name
+      }
+    }
   })]
 
-  depends_on = [helm_release.arc_controller]
+  depends_on = [
+    helm_release.arc_controller,
+    aws_eks_pod_identity_association.arc_runner,
+  ]
 }
