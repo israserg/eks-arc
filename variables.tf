@@ -17,15 +17,27 @@ variable "kubernetes_version" {
 }
 
 variable "node_instance_type" {
-  description = "EC2 instance type for worker nodes. Must be Free Tier eligible on the Free plan: m7i-flex.large has 2 vCPU and 8 GiB, enough for ARC with Docker-in-Docker."
+  description = "Instance type of the small fixed system node (CoreDNS, ARC controller, Karpenter). Must be Free Tier eligible on the Free plan."
   type        = string
-  default     = "m7i-flex.large"
+  default     = "t3.small"
 }
 
 variable "node_count" {
-  description = "Fixed number of worker nodes (min = desired = max). Karpenter will replace this later."
+  description = "Fixed number of system nodes (min = desired = max). Runner nodes are created by Karpenter."
   type        = number
   default     = 1
+}
+
+variable "runner_instance_types" {
+  description = "Instance types Karpenter may launch for runner jobs. All must be Free Tier eligible on the Free plan."
+  type        = list(string)
+  default     = ["t3.small", "c7i-flex.large", "m7i-flex.large"]
+}
+
+variable "runner_max" {
+  description = "Maximum number of runner pods (concurrent jobs). Each needs about 1 GiB; the NodePool CPU limit also caps this."
+  type        = number
+  default     = 2
 }
 
 variable "github_config_url" {

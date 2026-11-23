@@ -27,6 +27,11 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  # Karpenter attaches this security group to the nodes it launches.
+  node_security_group_tags = {
+    "karpenter.sh/discovery" = var.cluster_name
+  }
+
   eks_managed_node_groups = {
     training = {
       # Fixed size: min = desired = max. Karpenter replaces this in a later lesson.

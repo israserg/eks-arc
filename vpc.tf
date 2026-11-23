@@ -34,5 +34,7 @@ module "vpc" {
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
+    # Karpenter launches nodes into subnets carrying this tag.
+    "karpenter.sh/discovery" = var.cluster_name
   }
 }

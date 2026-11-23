@@ -14,6 +14,11 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.0"
     }
+    # Applies raw YAML (Karpenter NodePool/EC2NodeClass) without needing the CRDs at plan time.
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = "~> 2.0"
+    }
   }
 
   # Remote state in the bucket created in the console step.
