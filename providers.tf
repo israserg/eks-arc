@@ -1,0 +1,35 @@
+provider "aws" {
+  region = var.region
+
+  default_tags {
+    tags = {
+      Project   = "eks-arc-training"
+      ManagedBy = "terraform"
+    }
+  }
+}
+
+# Helm and Kubernetes providers talk to the cluster we create.
+# The token is generated with the AWS CLI using the same credentials as Terraform.
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+  }
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+    }
+  }
+}
