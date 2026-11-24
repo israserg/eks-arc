@@ -76,6 +76,11 @@ resource "helm_release" "arc_runners" {
         nodeSelector = {
           "karpenter.sh/nodepool" = "runners"
         }
+
+        # Allow runners onto the tainted Karpenter nodes (see taints in karpenter.tf).
+        tolerations = [
+          { key = "dedicated", operator = "Equal", value = "runners", effect = "NoSchedule" }
+        ]
       }
     }
   })]

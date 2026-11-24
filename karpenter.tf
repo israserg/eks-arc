@@ -87,6 +87,12 @@ resource "kubectl_manifest" "node_pool" {
             # Only Free Tier eligible types: other types are rejected by the Free plan.
             { key = "node.kubernetes.io/instance-type", operator = "In", values = var.runner_instance_types },
           ]
+          # Dedicated nodes: only pods that tolerate this taint (the runners) may run here.
+          # Without it, CoreDNS or the ARC listener can land on these nodes and keep them
+          # from ever being removed, because WhenEmpty ignores nodes that still have pods.
+          taints = [
+            { key = "dedicated", value = "runners", effect = "NoSchedule" }
+          ]
           expireAfter = "24h" # replace nodes after a day so they stay fresh
         }
       }

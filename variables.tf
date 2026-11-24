@@ -34,6 +34,18 @@ variable "runner_instance_types" {
   default     = ["t3.small", "c7i-flex.large", "m7i-flex.large"]
 }
 
+variable "runner_medium_instance_types" {
+  description = "Instance types for the medium runner tier. Free Tier eligible and large enough for ~3 GiB of pod requests."
+  type        = list(string)
+  default     = ["c7i-flex.large", "m7i-flex.large"]
+}
+
+variable "runner_medium_max" {
+  description = "Maximum number of medium runner pods (concurrent medium jobs). One fits per node at the default size."
+  type        = number
+  default     = 2
+}
+
 variable "runner_max" {
   description = "Maximum number of runner pods (concurrent jobs). Each needs about 1 GiB; the NodePool CPU limit also caps this."
   type        = number

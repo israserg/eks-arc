@@ -9,8 +9,13 @@ on:
 
 jobs:
   inspect:
-    # Matches the runner scale set name created by Terraform (helm release "arc-runners").
-    runs-on: arc-runners
+    # One job per runner size. The labels are the Helm release names created by Terraform.
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [arc-runners, arc-medium]
+    name: inspect (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Operating system
         run: |
@@ -23,6 +28,11 @@ jobs:
           echo "== CPU / memory =="
           nproc
           grep MemTotal /proc/meminfo
+          echo "== this container's limits (cgroup) =="
+          echo "memory.max: $(cat /sys/fs/cgroup/memory.max 2>/dev/null)"
+          echo "cpu.max:    $(cat /sys/fs/cgroup/cpu.max 2>/dev/null)"
+          echo "== node name / pool =="
+          echo "runner pod: ${HOSTNAME}"
 
       - name: Installed tools
         run: |
