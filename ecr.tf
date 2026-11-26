@@ -1,26 +1,16 @@
-# Private container registry for the images the runners build.
+# ECR repositories are owned by the separate "foundation" stack (./foundation), so they
+# survive a destroy of this cluster stack. Apply ./foundation FIRST; this stack only looks
+# the repositories up (plan fails here if they do not exist yet).
+#
+# Images:  eks-arc-demo        (built by the eks-demo-app workflow)
+# Charts:  charts/demo         (Helm chart pushed as an OCI artifact)
 
-resource "aws_ecr_repository" "demo" {
+data "aws_ecr_repository" "demo" {
   name = "eks-arc-demo"
-
-  # Immutable tags: once 1.0.42-abc1234 is pushed it can't be overwritten,
-  # so every build has a unique, traceable image.
-  image_tag_mutability = "IMMUTABLE"
-
-  # Lets terraform destroy remove the repo even if images are still in it (training only).
-  force_delete = true
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
 }
 
-# Helm chart repository. "helm push oci://<registry>/charts" with a chart named "demo"
-# lands in the ECR repository "charts/demo". Immutable: each chart version is published once.
-resource "aws_ecr_repository" "demo_chart" {
-  name                 = "charts/demo"
-  image_tag_mutability = "IMMUTABLE"
-  force_delete         = true
+data "aws_ecr_repository" "demo_chart" {
+  name = "charts/demo"
 }
 
 # Identity for the runner pods. Only ECR push is allowed, nothing else.
@@ -59,7 +49,7 @@ data "aws_iam_policy_document" "arc_runner_ecr" {
       "ecr:PutImage",
       "ecr:BatchGetImage",
     ]
-    resources = [aws_ecr_repository.demo.arn, aws_ecr_repository.demo_chart.arn]
+    resources = [data.aws_ecr_repository.demo.arn, data.aws_ecr_repository.demo_chart.arn]
   }
 }
 

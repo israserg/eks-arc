@@ -10,7 +10,7 @@ output "cluster_endpoint" {
 
 output "ecr_repository_url" {
   description = "ECR repository the build workflow pushes images to."
-  value       = aws_ecr_repository.demo.repository_url
+  value       = data.aws_ecr_repository.demo.repository_url
 }
 
 output "argocd_access" {
