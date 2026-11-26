@@ -15,6 +15,14 @@ resource "aws_ecr_repository" "demo" {
   }
 }
 
+# Helm chart repository. "helm push oci://<registry>/charts" with a chart named "demo"
+# lands in the ECR repository "charts/demo". Immutable: each chart version is published once.
+resource "aws_ecr_repository" "demo_chart" {
+  name                 = "charts/demo"
+  image_tag_mutability = "IMMUTABLE"
+  force_delete         = true
+}
+
 # Identity for the runner pods. Only ECR push is allowed, nothing else.
 data "aws_iam_policy_document" "arc_runner_trust" {
   statement {
@@ -41,7 +49,7 @@ data "aws_iam_policy_document" "arc_runner_ecr" {
     resources = ["*"]
   }
 
-  # Push permissions are limited to the demo repository only.
+  # Push permissions are limited to the demo image repository and the demo chart repository.
   statement {
     actions = [
       "ecr:BatchCheckLayerAvailability",
@@ -51,7 +59,7 @@ data "aws_iam_policy_document" "arc_runner_ecr" {
       "ecr:PutImage",
       "ecr:BatchGetImage",
     ]
-    resources = [aws_ecr_repository.demo.arn]
+    resources = [aws_ecr_repository.demo.arn, aws_ecr_repository.demo_chart.arn]
   }
 }
 

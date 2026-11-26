@@ -17,9 +17,9 @@ variable "kubernetes_version" {
 }
 
 variable "node_instance_type" {
-  description = "Instance type of the small fixed system node (CoreDNS, ARC controller, Karpenter). Must be Free Tier eligible on the Free plan."
+  description = "Instance type of the fixed system node (CoreDNS, ARC controller, Karpenter, Argo CD). Must be Free Tier eligible on the Free plan."
   type        = string
-  default     = "t3.small"
+  default     = "m7i-flex.large"
 }
 
 variable "node_count" {
@@ -56,6 +56,24 @@ variable "github_config_url" {
   description = "GitHub repo or org that runners register to, e.g. https://github.com/<owner>/<repo>. Leave empty to skip the ARC runner step."
   type        = string
   default     = "https://github.com/israserg/eks-arc"
+}
+
+variable "app_repo_url" {
+  description = "GitHub repo of the demo app. Gets its own runner scale set (runs-on: arc-app). Leave empty to skip."
+  type        = string
+  default     = "https://github.com/israserg/eks-demo-app"
+}
+
+variable "argocd_enabled" {
+  description = "Install Argo CD and the root Application. Set false to skip."
+  type        = bool
+  default     = true
+}
+
+variable "gitops_repo_url" {
+  description = "Public Git repo Argo CD syncs from (needs root/ with Application files)."
+  type        = string
+  default     = "https://github.com/israserg/eks-gitops"
 }
 
 variable "github_token" {

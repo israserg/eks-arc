@@ -13,6 +13,11 @@ output "ecr_repository_url" {
   value       = aws_ecr_repository.demo.repository_url
 }
 
+output "argocd_access" {
+  description = "How to reach the Argo CD UI (https://localhost:8080) and read the initial admin password."
+  value       = "kubectl port-forward svc/argocd-server -n argocd 8080:443   |   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
+}
+
 output "kubeconfig_command" {
   description = "Run this to point kubectl at the cluster."
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
